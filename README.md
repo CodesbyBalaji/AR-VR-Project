@@ -68,7 +68,7 @@ Dharmasinh Desai University (DDU) is a premier institution located in Nadiad, Gu
 - **[Sahil Sapariya](https://github.com/sahilsapariya)** - Developer
 -  **[Pranjal Javia](https://github.com/pranjaljavia)** - Developer
 - **[Meet Boda](https://github.com/meetboda)** - Developer
-- **[Prey Dalsaniya]()** - Developer
+- **[Prey Dalsaniya](https://github.com/Prey36)** - Developer
 - **DUHACKS 2.0 Team**
 
 ---
