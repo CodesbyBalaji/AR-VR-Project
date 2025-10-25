@@ -5,14 +5,171 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>360 degree View</title>
+    <title>360 degree View with Virtual Hand</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        /* Virtual Hand Controls */
+        .virtual-hand-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .hand-button {
+            background: none;
+            border: 2px solid #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .hand-button:hover {
+            background: #4CAF50;
+            transform: scale(1.1);
+        }
+        
+        .location-button {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #fff;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .location-button:hover {
+            background: #4CAF50;
+            transform: scale(1.05);
+        }
+        
+        .virtual-hand {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 99;
+            transition: transform 0.2s ease;
+        }
+        
+        .voice-feedback {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            z-index: 100;
+            font-size: 16px;
+            display: none;
+            animation: fadeInOut 3s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+        
+        .locations-panel {
+            position: absolute;
+            top: 15%;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .location-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .location-item:hover {
+            background: #4CAF50;
+        }
+    </style>
 </head>
 
 <body>
     <div class="main-container">
-        <a href="/" style="z-index: 100; position: absolute
-        ; top: 5%;">Back to Home Page</a>
+        <a href="/" style="z-index: 100; position: absolute; top: 5%;">Back to Home Page</a>
+        
+        <!-- Virtual Hand -->
+        <img src="https://cdn-icons-png.flaticon.com/512/7026/7026951.png" class="virtual-hand" id="virtualHand" alt="Virtual Hand" style="display: none;">
+        
+        <!-- Voice Feedback -->
+        <div class="voice-feedback" id="voiceFeedback"></div>
+        
+        <!-- Locations Panel -->
+        <div class="locations-panel">
+            <h3 style="margin-top: 0; text-align: center;">Locations</h3>
+            <div class="location-item" data-location="main_gate">Main Gate</div>
+            <div class="location-item" data-location="cf_outside">CF Outside</div>
+            <div class="location-item" data-location="cf_middle">CF Middle</div>
+            <div class="location-item" data-location="canal_gate">Canal Gate</div>
+            <div class="location-item" data-location="front_canteen">Front Canteen</div>
+            <div class="location-item" data-location="front_library">Front Library</div>
+            <div class="location-item" data-location="front_narayan_bhavan">Narayan Bhavan</div>
+            <div class="location-item" data-location="girls_hostel">Girls Hostel</div>
+            <div class="location-item" data-location="ce_dept_from_library">CE Department</div>
+            <div class="location-item" data-location="CF_back_side">CF Back Side</div>
+            <div class="location-item" data-location="CE_dept_steps">CE Dept Steps</div>
+            <div class="location-item" data-location="EC_dept_steps">EC Dept Steps</div>
+            <div class="location-item" data-location="infront_seminar_hall">Seminar Hall Front</div>
+            <div class="location-item" data-location="CH_lab">CH Lab</div>
+            <div class="location-item" data-location="EC_nvc_lab_first">EC NVC Lab</div>
+            <div class="location-item" data-location="Dental_Front_Tech_Side">Dental Front</div>
+            <div class="location-item" data-location="seminar_hall">Seminar Hall</div>
+            <div class="location-item" data-location="ce_lab8">CE Lab 8</div>
+            <div class="location-item" data-location="ce_lab5">CE Lab 5</div>
+            <div class="location-item" data-location="infront_ce_lab5">Front CE Lab 5</div>
+            <div class="location-item" data-location="down_ce_labs">Down CE Labs</div>
+            <div class="location-item" data-location="ce_hod_office">CE HOD Office</div>
+            <div class="location-item" data-location="ce_lab5_garden">CE Lab 5 Garden</div>
+            <div class="location-item" data-location="ce_labs">CE Labs</div>
+            <div class="location-item" data-location="cf_first_floor">CF First Floor</div>
+        </div>
+
+        <!-- Virtual Hand Controls -->
+        <div class="virtual-hand-controls">
+            <button class="hand-button" id="toggleHand">👆</button>
+            <button class="hand-button" id="moveLeft">←</button>
+            <button class="hand-button" id="moveRight">→</button>
+            <button class="hand-button" id="moveUp">↑</button>
+            <button class="hand-button" id="moveDown">↓</button>
+            <button class="hand-button" id="zoomIn">+</button>
+            <button class="hand-button" id="zoomOut">-</button>
+        </div>
+
         <div class="image-container"></div>
     </div>
 
@@ -20,6 +177,196 @@
         integrity="sha512-uWKImujbh9CwNa8Eey5s8vlHDB4o1HhrVszkympkm5ciYTnUEQv3t4QHU02CUqPtdKTg62FsHo12x63q6u0wmg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ url_for('static', filename='js/panolens.min.js') }}"></script>
+
+    <!-- Virtual Hand and Voice Control Script -->
+    <script>
+        class VirtualHandController {
+            constructor(viewer) {
+                this.viewer = viewer;
+                this.isHandActive = false;
+                this.handElement = document.getElementById('virtualHand');
+                this.voiceFeedback = document.getElementById('voiceFeedback');
+                
+                this.initEventListeners();
+                this.initLocationNavigation();
+            }
+
+            initEventListeners() {
+                // Toggle virtual hand
+                document.getElementById('toggleHand').addEventListener('click', () => {
+                    this.toggleVirtualHand();
+                });
+
+                // Movement controls
+                document.getElementById('moveLeft').addEventListener('click', () => {
+                    this.rotateView(-30, 0);
+                    this.speakFeedback("Moving left");
+                });
+
+                document.getElementById('moveRight').addEventListener('click', () => {
+                    this.rotateView(30, 0);
+                    this.speakFeedback("Moving right");
+                });
+
+                document.getElementById('moveUp').addEventListener('click', () => {
+                    this.rotateView(0, -30);
+                    this.speakFeedback("Moving up");
+                });
+
+                document.getElementById('moveDown').addEventListener('click', () => {
+                    this.rotateView(0, 30);
+                    this.speakFeedback("Moving down");
+                });
+
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                    this.zoom(0.8);
+                    this.speakFeedback("Zooming in");
+                });
+
+                document.getElementById('zoomOut').addEventListener('click', () => {
+                    this.zoom(1.2);
+                    this.speakFeedback("Zooming out");
+                });
+
+                // Mouse movement for hand tracking
+                document.addEventListener('mousemove', (event) => {
+                    this.updateHandPosition(event.clientX, event.clientY);
+                });
+
+                // Touch movement for mobile
+                document.addEventListener('touchmove', (event) => {
+                    if (event.touches.length > 0) {
+                        this.updateHandPosition(event.touches[0].clientX, event.touches[0].clientY);
+                    }
+                });
+            }
+
+            initLocationNavigation() {
+                const locationItems = document.querySelectorAll('.location-item');
+                locationItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const location = item.getAttribute('data-location');
+                        this.navigateToLocation(location);
+                        this.speakFeedback(item.textContent);
+                    });
+                });
+            }
+
+            toggleVirtualHand() {
+                this.isHandActive = !this.isHandActive;
+                const handButton = document.getElementById('toggleHand');
+                
+                if (this.isHandActive) {
+                    this.handElement.style.display = 'block';
+                    handButton.style.background = '#4CAF50';
+                    this.speakFeedback("Virtual hand activated");
+                } else {
+                    this.handElement.style.display = 'none';
+                    handButton.style.background = 'none';
+                    this.speakFeedback("Virtual hand deactivated");
+                }
+            }
+
+            updateHandPosition(x, y) {
+                if (this.isHandActive && this.handElement) {
+                    this.handElement.style.left = (x - 50) + 'px';
+                    this.handElement.style.top = (y - 50) + 'px';
+                }
+            }
+
+            navigateToLocation(locationName) {
+                const panoramaName = 'panorama_' + locationName;
+                
+                // Map location names to panorama variables
+                const panoramaMap = {
+                    'main_gate': panorama_main_gate,
+                    'cf_outside': panorama_cf_outside,
+                    'cf_middle': panorama_cf_middle,
+                    'canal_gate': panorama_canal_gate,
+                    'front_canteen': panorama_front_canteen,
+                    'front_library': panorama_front_library,
+                    'front_narayan_bhavan': panorama_front_narayan_bhavan,
+                    'girls_hostel': panorama_girls_hostel,
+                    'ce_dept_from_library': panorama_ce_dept_from_library,
+                    'CF_back_side': panorama_CF_back_side,
+                    'CE_dept_steps': panorama_CE_dept_steps,
+                    'EC_dept_steps': panorama_EC_dept_steps,
+                    'infront_seminar_hall': panorama_infront_seminar_hall,
+                    'CH_lab': panorama_CH_lab,
+                    'EC_nvc_lab_first': panorama_EC_nvc_lab_first,
+                    'Dental_Front_Tech_Side': panorama_Dental_Front_Tech_Side,
+                    'seminar_hall': panorama_seminar_hall,
+                    'ce_lab8': panorama_ce_lab8,
+                    'ce_lab5': panorama_ce_lab5,
+                    'infront_ce_lab5': panorama_infront_ce_lab5,
+                    'down_ce_labs': panorama_down_ce_labs,
+                    'ce_hod_office': panorama_ce_hod_office,
+                    'ce_lab5_garden': panorama_ce_lab5_garden,
+                    'ce_labs': panorama_ce_labs,
+                    'cf_first_floor': panorama_cf_first_floor
+                };
+
+                const targetPanorama = panoramaMap[locationName];
+                if (targetPanorama && this.viewer) {
+                    this.viewer.setPanorama(targetPanorama);
+                }
+            }
+
+            rotateView(horizontal, vertical) {
+                const camera = this.viewer.getCamera();
+                if (camera) {
+                    camera.rotation.y += THREE.MathUtils.degToRad(horizontal);
+                    camera.rotation.x += THREE.MathUtils.degToRad(vertical);
+                }
+            }
+
+            zoom(factor) {
+                const camera = this.viewer.getCamera();
+                if (camera && camera.fov) {
+                    camera.fov *= factor;
+                    camera.updateProjectionMatrix();
+                }
+            }
+
+            speakFeedback(message) {
+                // Display visual feedback
+                this.voiceFeedback.textContent = message;
+                this.voiceFeedback.style.display = 'block';
+                
+                // Use speech synthesis for voice feedback
+                if ('speechSynthesis' in window) {
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.text = message;
+                    speech.volume = 1;
+                    speech.rate = 1;
+                    speech.pitch = 1;
+                    
+                    // Stop any ongoing speech
+                    window.speechSynthesis.cancel();
+                    
+                    // Speak the message
+                    window.speechSynthesis.speak(speech);
+                }
+                
+                // Hide feedback after animation
+                setTimeout(() => {
+                    this.voiceFeedback.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for the panorama viewer to initialize
+            const checkViewer = setInterval(() => {
+                if (typeof viewer !== 'undefined') {
+                    clearInterval(checkViewer);
+                    const virtualHandController = new VirtualHandController(viewer);
+                    console.log('Virtual Hand Controller initialized');
+                }
+            }, 100);
+        });
+    </script>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
